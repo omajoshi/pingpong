@@ -1,0 +1,30 @@
+{% extends "standings/base.html" %}
+{% block title %}Games{% endblock %}
+
+{% block content %}
+<h1>Games</h1>
+
+<table>
+  <tr>
+    <th>Winner</th>
+    <th>Score</th>
+    <th>Loser</th>
+    <th>Date</th>
+  </tr>
+{% for game in games %}
+  <tr>
+    <td><a href="{% url 'standings:player' game.winner.name %}">{{ game.winner.name }}</a></td>
+    <td>{{ game.winner_points }} - {{ game.loser_points }}</td>
+    <td><a href="{% url 'standings:player' game.loser.name %}">{{ game.loser.name }}</a></td>
+    <td>{{ game.date }}</td>
+  </tr>
+{% empty %}
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}
