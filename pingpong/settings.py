@@ -23,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'zbm%7tdvc5^ah67+j%8+*lmy4spe$^4#9*p-5%mr5m2yy!ajb%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
-#ALLOWED_HOSTS = ["pingpong.omajoshi.com"]
+ALLOWED_HOSTS = ["pingpong.omajoshi.com"]
 
 
 # Application definition

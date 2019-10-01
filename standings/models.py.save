@@ -24,24 +24,15 @@ class Game(models.Model):
             recalculate_elo(self.winner, self.loser)
         super(Game, self).save(*args, **kwargs)
 
-def recalculate_elo(winner, loser, wk=24, lk=24):
+def recalculate_elo(winner, loser, k=40):
     w = winner.elo
     l = loser.elo
-    wg = w.losers.count() + w.winners.count()
-    lg = l.losers.count() + l.winners.count()
-    if wg < 10:
-        wk = 36
-    if w >= 1750:
-        wk = 12
-    if lg < 10:
-        lk = 36
-    if lg >= 1750:
-        wk = 12 
-    d = (w-l)/400
-    we = 1 / (1 + 10**(-d))
-    le = 1 / (1 + 10**(d))
-    winner.elo = w + max(1, wk*(1-we))
-    loser.elo = l - max(1, lk*le)
+    wr = 10**(l/400)
+    lr = 10**(w/400)
+    we = wr / (wr + lr)
+    le = lr / (wr + lr)
+    winner.elo = w + k*(1-we)
+    loser.elo = l - k*le
     winner.save()
     loser.save()
 
