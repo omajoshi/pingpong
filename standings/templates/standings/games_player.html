@@ -2,7 +2,7 @@
 {% block title %}{{ player }} Games{% endblock %}
 {% block content %}
 
-<h1>{{ player }} Games</h1>
+<h1><a href="{% url 'standings:index' %}">Standings</a> {{ player }}</h1>
 <table>
   <tr>
     <th>Winner</th>

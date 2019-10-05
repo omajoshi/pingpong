@@ -27,16 +27,16 @@ class Game(models.Model):
 def recalculate_elo(winner, loser, wk=24, lk=24):
     w = winner.elo
     l = loser.elo
-    wg = w.losers.count() + w.winners.count()
-    lg = l.losers.count() + l.winners.count()
+    wg = winner.losers.count() + winner.winners.count()
+    lg = loser.losers.count() + loser.winners.count()
     if wg < 10:
         wk = 36
-    if w >= 1750:
+    elif w >= 1750:
         wk = 12
     if lg < 10:
         lk = 36
-    if lg >= 1750:
-        wk = 12 
+    elif lg >= 1750:
+        lk = 12
     d = (w-l)/400
     we = 1 / (1 + 10**(-d))
     le = 1 / (1 + 10**(d))
