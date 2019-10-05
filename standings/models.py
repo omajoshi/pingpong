@@ -29,14 +29,10 @@ def recalculate_elo(winner, loser, wk=24, lk=24):
     l = loser.elo
     wg = winner.losers.count() + winner.winners.count()
     lg = loser.losers.count() + loser.winners.count()
-    if wg < 10:
+    if wg <= 10:
         wk = 36
-    elif w >= 1750:
-        wk = 12
-    if lg < 10:
+    if lg <= 10:
         lk = 36
-    elif lg >= 1750:
-        lk = 12
     d = (w-l)/400
     we = 1 / (1 + 10**(-d))
     le = 1 / (1 + 10**(d))
