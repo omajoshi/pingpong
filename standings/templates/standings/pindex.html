@@ -1,0 +1,27 @@
+{% extends "standings/base.html" %}
+{% block content %}
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Wins</th>
+    <th>Losses</th>
+    <th>ELO</th>
+  </tr>
+{% for player in standings %}  
+  <tr>
+    <td><a href="{% url 'standings:player' player.name %}">{{ player.name }}</a></td>
+    <td>{{ player.wins }}</td>
+    <td>{{ player.losses }}</td>
+    <td>{{ player.elo }}</td>
+  </tr>
+{% empty %}
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}

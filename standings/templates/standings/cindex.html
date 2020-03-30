@@ -1,0 +1,21 @@
+{% extends "standings/base.html" %}
+{% block content %}
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Cards Cut</th>
+  </tr>
+{% for player in standings %}  
+  <tr>
+    <td>{{ player.name }}</td>
+    <td>{{ player.cards_cut }}</td>
+  </tr>
+{% empty %}
+  <tr>
+    <td></td>
+    <td></td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}
