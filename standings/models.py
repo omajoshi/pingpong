@@ -6,6 +6,7 @@ class Player(models.Model):
     name = models.CharField(max_length=200, unique=True)
     id = models.CharField(max_length=200, primary_key=True)
     elo = models.IntegerField(default=1500)
+    cards_cut = models.IntegerField(default=0)
     def __str__(self):
         return self.name
 
