@@ -1,14 +1,18 @@
 from django.db import models
 from django.urls import reverse
 
-
 class Player(models.Model):
     name = models.CharField(max_length=200, unique=True)
     id = models.CharField(max_length=200, primary_key=True)
     elo = models.IntegerField(default=1500)
-    cards_cut = models.IntegerField(default=0)
     def __str__(self):
         return self.name
+
+class Card(models.Model):
+    cutter = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="cards")
+    date = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f"Cut by {self.cutter} on {self.date}"
 
 class Game(models.Model):
     winner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="winners")

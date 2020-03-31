@@ -1,9 +1,9 @@
-import re
+import re, requests
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views import generic
 from django.template import loader
-from .models import Player, Game
+from .models import Player, Game, Card
 from django.db.models import Count, Q, Sum
 from django.views.decorators.csrf import csrf_exempt
 
@@ -14,7 +14,7 @@ class CardIndexView(generic.ListView):
     template_name = 'standings/cindex.html'
     context_object_name = 'standings'
     def get_queryset(self):
-        return  Player.objects.filter(cards_cut__gt=0).order_by('-cards_cut')
+        return  Player.objects.annotate(cards_cut=Count('cards')).filter(cards_cut__gt=0).order_by('-cards_cut')
 
 
 class PingPongIndexView(generic.ListView):
@@ -52,16 +52,29 @@ def cut_cards(request):
         try:
             val = int(text)
         except:
-            card_cutters = Player.objects.filter(cards_cut__gt=0).order_by('-cards_cut')
+            card_cutters = Player.objects.annotate(cards_cut=Count('cards')).filter(cards_cut__gt=0).order_by('-cards_cut')
+            message = "No one has cut any cards!  Start cutting cards ..."
             if len(card_cutters):
-                total_cards = card_cutters.aggregate(Sum('cards_cut'))['cards_cut__sum']
-                return JsonResponse({"response_type": "in_channel", "text": f"*TOTAL CARDS CUT: {total_cards}*\n" + "\n".join([f"{i+1}. {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters)])})
-            return JsonResponse({"response_type": "in_channel", "text": "No one has cut any cards!  Start cutting cards"})
+                message = f"*TOTAL CARDS CUT: {Card.objects.count()}*\n" + "\n".join([f"{i+1}. {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters)])
+            return JsonResponse({"response_type": "in_channel", "text": message})
         p, new = Player.objects.get_or_create(id=request.POST['user_id'])
         p.name = request.POST['user_name']
-        p.cards_cut += val
         p.save()
-        return JsonResponse({"response_type": "in_channel", "text": f"{p.name} cut {val} cards.  {p.name} has now cut a total of {p.cards_cut} cards."})
+        if val > 0:
+            for x in range(val):
+                Card.objects.create(cutter=p)
+            p.save()
+            message = f"{p.name} cut {val} cards.  {p.name} now has cut a total of {p.cards.count()} cards."
+            webhook_url = ""
+            requests.post(webhook_url, json={'text': message})
+        elif val + p.cards.count() >= 0:
+            Card.objects.filter(id__in=list(p.cards.order_by('-date').values_list('pk', flat=True)[:-val])).delete()
+            message = f"You subtracted {-val} cards from your total.  You now have cut a total of {p.cards.count()} cards."
+        else:
+            c = p.cards.count()
+            p.cards.all().delete()
+            message = f"You had {c} cards ... but you tried to subtract {-val}.  Your total number of cards cut has instead been set to zero."
+        return JsonResponse({"response_type": "ephemeral", "text": message})
     return HttpResponse("You did something wrong.")
 
 

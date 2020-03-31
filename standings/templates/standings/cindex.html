@@ -9,7 +9,7 @@
 {% for player in standings %}  
   <tr>
     <td>{{ player.name }}</td>
-    <td>{{ player.cards_cut }}</td>
+    <td>{{ player.cards.count }}</td>
   </tr>
 {% empty %}
   <tr>
