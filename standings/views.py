@@ -6,7 +6,8 @@ from django.template import loader
 from .models import Player, Game, Card
 from django.db.models import Count, Q, Sum
 from django.views.decorators.csrf import csrf_exempt
-
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 # Create your views here.
 
@@ -52,11 +53,17 @@ def cut_cards(request):
         try:
             val = int(text)
         except:
+            medals = {1: ':first_place_medal:', 2: ':second_place_medal:', 3: ':third_place_medal:'}
             card_cutters = Player.objects.annotate(cards_cut=Count('cards')).filter(cards_cut__gt=0).order_by('-cards_cut')
             message = "No one has cut any cards!  Start cutting cards ..."
             if len(card_cutters):
-                message = f"*TOTAL CARDS CUT: {Card.objects.count()}*\n" + "\n".join([f"{i+1}. {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters)])
-            return JsonResponse({"response_type": "in_channel", "text": message})
+                message = f"*TOTAL CARDS CUT: {Card.objects.count()}*\n" + "\n".join([f"{medals.get(i+1, i+1)} {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters)])
+            tn = datetime.now(tz=timezone.utc)-timedelta(7)
+            card_cutters_w = Player.objects.annotate(cards_cut=Count('cards', filter=Q(cards__date__gt=tn))).filter(cards_cut__gt=0).order_by('-cards_cut')
+            message_w = f"\nNo one has cut any cards since {tn.strftime('%m/%d/%Y')}!  Start cutting cards ..."
+            if len(card_cutters_w):
+                message_w = f"\n*TOTAL CARDS CUT SINCE {tn.strftime('%m/%d/%Y')}: {Card.objects.filter(date__gt=tn).count()}*\n" + "\n".join([f"{medals.get(i+1, i+1)} {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters_w)])
+            return JsonResponse({"response_type": "in_channel", "text": message + message_w})
         p, new = Player.objects.get_or_create(id=request.POST['user_id'])
         p.name = request.POST['user_name']
         p.save()
@@ -65,7 +72,6 @@ def cut_cards(request):
                 Card.objects.create(cutter=p)
             p.save()
             message = f"{p.name} cut {val} cards.  {p.name} now has cut a total of {p.cards.count()} cards."
-            webhook_url = ""
             requests.post(webhook_url, json={'text': message})
         elif val + p.cards.count() >= 0:
             Card.objects.filter(id__in=list(p.cards.order_by('-date').values_list('pk', flat=True)[:-val])).delete()
