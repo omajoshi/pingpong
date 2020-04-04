@@ -8,6 +8,7 @@ from django.db.models import Count, Q, Sum
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 from django.utils import timezone
+from .slack_webhooks import CARDS_WEBHOOK
 
 # Create your views here.
 
@@ -62,7 +63,7 @@ def cut_cards(request):
             card_cutters_w = Player.objects.annotate(cards_cut=Count('cards', filter=Q(cards__date__gt=tn))).filter(cards_cut__gt=0).order_by('-cards_cut')
             message_w = f"\nNo one has cut any cards since {tn.strftime('%m/%d/%Y')}!  Start cutting cards ..."
             if len(card_cutters_w):
-                message_w = f"\n*TOTAL CARDS CUT SINCE {tn.strftime('%m/%d/%Y')}: {Card.objects.filter(date__gt=tn).count()}*\n" + "\n".join([f"{medals.get(i+1, i+1)} {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters_w)])
+                message_w = f"\n*CARDS CUT SINCE {tn.strftime('%m/%d/%Y')}: {Card.objects.filter(date__gt=tn).count()}*\n" + "\n".join([f"{medals.get(i+1, i+1)} {player.name} ({player.cards_cut})" for i, player in enumerate(card_cutters_w)])
             return JsonResponse({"response_type": "in_channel", "text": message + message_w})
         p, new = Player.objects.get_or_create(id=request.POST['user_id'])
         p.name = request.POST['user_name']
@@ -72,6 +73,7 @@ def cut_cards(request):
                 Card.objects.create(cutter=p)
             p.save()
             message = f"{p.name} cut {val} cards.  {p.name} now has cut a total of {p.cards.count()} cards."
+            webhook_url = CARDS_WEBHOOK
             requests.post(webhook_url, json={'text': message})
         elif val + p.cards.count() >= 0:
             Card.objects.filter(id__in=list(p.cards.order_by('-date').values_list('pk', flat=True)[:-val])).delete()

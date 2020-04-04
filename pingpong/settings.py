@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from .secret_settings import SECRET_KEY_SECRET
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'zbm%7tdvc5^ah67+j%8+*lmy4spe$^4#9*p-5%mr5m2yy!ajb%'
+SECRET_KEY = SECRET_KEY_SECRET
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -123,3 +124,5 @@ STATIC_URL = '/static/'
 CSRF_COOKIE_SECURE = False
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+SECURE_SSL_REDIRECT = True
