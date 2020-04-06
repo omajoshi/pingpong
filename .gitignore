@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+standings/slack_webhooks.py
+pingpong/secret_settings.py
+
 # Distribution / packaging
 .Python
 build/
