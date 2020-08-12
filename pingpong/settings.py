@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-from .secret_settings import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -116,3 +115,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 CSRF_COOKIE_SECURE = False
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+
+SECRET_KEY = "ABCDEFGHIJKLMNOP"
+DEBUG = True
+ALLOWED_HOSTS = ["*"]
+
+'''
+local_settings.py should contain the following settings:
+SECRET_KEY
+DEBUG
+ALLOWED_HOSTS
+'''
+
+# UNCOMMENT THIS ONCE YOU SET THE LOCAL SETTINGS
+# from .local_settings import *
