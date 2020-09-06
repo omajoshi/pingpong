@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
+from datetime import timedelta, datetime
 
 class Player(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -7,6 +9,9 @@ class Player(models.Model):
     elo = models.IntegerField(default=1500)
     def __str__(self):
         return self.name
+    def cards_count_year(self):
+        yr = datetime(2020, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
+        return self.cards.filter(date__gt=yr).count()
 
 class Card(models.Model):
     cutter = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="cards")
